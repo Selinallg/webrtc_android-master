@@ -1,0 +1,11 @@
+*.iml
+.gradle
+/webrtclib
+/local.properties
+/.idea
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.project
+/.settings
