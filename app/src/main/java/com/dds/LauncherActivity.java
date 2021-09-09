@@ -4,11 +4,13 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 
 import com.dds.core.MainActivity;
@@ -16,9 +18,13 @@ import com.dds.core.base.BaseActivity;
 import com.dds.core.consts.Urls;
 import com.dds.core.socket.IUserState;
 import com.dds.core.socket.SocketManager;
+import com.dds.skywebrtc.engine.webrtc.WebRTCEngine;
 import com.dds.webrtc.R;
 
 public class LauncherActivity extends BaseActivity implements IUserState {
+
+
+    private static final String TAG = "LauncherActivity";
     private Toolbar toolbar;
     private EditText etUser;
     private Button button8;
@@ -34,6 +40,10 @@ public class LauncherActivity extends BaseActivity implements IUserState {
             startActivity(new Intent(this, MainActivity.class));
             finish();
         }
+
+        checkPermission();
+
+        requestRecording(this,RECORD_REQUEST_CODE);
     }
 
     private void initView() {
@@ -44,6 +54,16 @@ public class LauncherActivity extends BaseActivity implements IUserState {
         button8 = findViewById(R.id.button8);
 
         etUser.setText(App.getInstance().getUsername());
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == RECORD_REQUEST_CODE && resultCode == RESULT_OK) {
+            Log.e(TAG, "权限授予成功");
+            WebRTCEngine.setMediaProjectionPermissionResultCode(resultCode);
+            WebRTCEngine.setMediaProjectionPermissionResultData(data);
+        }
     }
 
     public void java(View view) {

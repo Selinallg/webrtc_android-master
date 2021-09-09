@@ -76,6 +76,8 @@ public class SkyEngineKit {
         isOutGoing = true;
         // 初始化会话
         mCurrentCallSession = new CallSession(context, room, audioOnly, mEvent);
+
+
         mCurrentCallSession.setTargetId(targetId);
         mCurrentCallSession.setIsComing(false);
         mCurrentCallSession.setCallState(EnumType.CallState.Outgoing);

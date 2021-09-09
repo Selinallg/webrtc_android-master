@@ -80,6 +80,7 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
 
     public boolean mIsAudioOnly;
     private Context mContext;
+    private Activity mActivity;
     private AudioManager audioManager;
     private boolean isSpeakerOn = true;
 
@@ -566,7 +567,7 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
 
     }
 
-
+    // TODO: 2021/9/9
     // 是否使用录屏
     private boolean screencaptureEnabled = true;
 
@@ -623,7 +624,16 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
     }
 
 
+    public static void setMediaProjectionPermissionResultData(Intent mediaProjectionPermissionResultData) {
+        WebRTCEngine.mediaProjectionPermissionResultData = mediaProjectionPermissionResultData;
+    }
+
     private static Intent mediaProjectionPermissionResultData;
+
+    public static void setMediaProjectionPermissionResultCode(int mediaProjectionPermissionResultCode) {
+        WebRTCEngine.mediaProjectionPermissionResultCode = mediaProjectionPermissionResultCode;
+    }
+
     private static int mediaProjectionPermissionResultCode;
 
     @TargetApi(21)

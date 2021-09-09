@@ -1,6 +1,7 @@
 package com.dds;
 
 import android.app.Application;
+import android.content.Intent;
 
 import com.dds.core.util.CrashHandler;
 import com.dds.core.voip.VoipEvent;
@@ -18,6 +19,11 @@ public class App extends Application {
     private String username = "";
     private String roomId = "";
     private String otherUserId = "";
+
+
+    private static Intent mediaProjectionPermissionResultData;
+
+    private static int mediaProjectionPermissionResultCode;
 
     @Override
     public void onCreate() {
