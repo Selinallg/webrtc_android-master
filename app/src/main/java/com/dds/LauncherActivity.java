@@ -43,7 +43,7 @@ public class LauncherActivity extends BaseActivity implements IUserState {
 
         checkPermission();
 
-        requestRecording(this,RECORD_REQUEST_CODE);
+      //  requestRecording(this,RECORD_REQUEST_CODE);
     }
 
     private void initView() {
@@ -61,6 +61,7 @@ public class LauncherActivity extends BaseActivity implements IUserState {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == RECORD_REQUEST_CODE && resultCode == RESULT_OK) {
             Log.e(TAG, "权限授予成功");
+            WebRTCEngine.setScreencaptureEnabled(true);
             WebRTCEngine.setMediaProjectionPermissionResultCode(resultCode);
             WebRTCEngine.setMediaProjectionPermissionResultData(data);
         }

@@ -84,6 +84,14 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
     private AudioManager audioManager;
     private boolean isSpeakerOn = true;
 
+    public static void setScreencaptureEnabled(boolean screencaptureEnabled) {
+        WebRTCEngine.screencaptureEnabled = screencaptureEnabled;
+    }
+
+    // TODO: 2021/9/9
+    // 是否使用录屏
+    private static boolean screencaptureEnabled = false;
+
     public WebRTCEngine(boolean mIsAudioOnly, Context mContext) {
         this.mIsAudioOnly = mIsAudioOnly;
         this.mContext = mContext;
@@ -567,9 +575,6 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
 
     }
 
-    // TODO: 2021/9/9
-    // 是否使用录屏
-    private boolean screencaptureEnabled = true;
 
     /**
      * 创建媒体方式
