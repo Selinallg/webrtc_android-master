@@ -2,15 +2,19 @@ package com.nolovr.core.webrtc.server;
 
 import static com.nolovr.core.webrtc.server.MemCons.rooms;
 
+import android.text.TextUtils;
 import android.util.Log;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.nolovr.core.webrtc.server.bean.EventData;
 import com.nolovr.core.webrtc.server.bean.RoomInfo;
 import com.nolovr.core.webrtc.server.bean.UserBean;
+
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
@@ -27,10 +31,10 @@ public class SocketLiveServer {
 
     private static final String TAG = "SocketLiveServer";
 
-    private        String    userId;
-    private static Gson      gson   = new Gson();
-    private static String    avatar = "p1.jpeg";
-    int     port;
+    private        String userId;
+    private static Gson   gson   = new Gson();
+    private static String avatar = "p1.jpeg";
+    int     port          = 5000;
     boolean serverRunning = false;
     private static SocketLiveServer sockentInstance = null;
 
@@ -89,10 +93,12 @@ public class SocketLiveServer {
             mThreadPool = Executors.newFixedThreadPool(1);
         }
 
-        if (mWebSocketServer!=null){
+        if (mWebSocketServer != null) {
             mWebSocketServer.setReuseAddr(true);
             mWebSocketServer.setConnectionLostTimeout(60 * 60);
         }
+
+        Log.d(TAG, "init: sucess");
 
 
     }
@@ -113,38 +119,72 @@ public class SocketLiveServer {
     WebSocketServer mWebSocketServer = new WebSocketServer(new InetSocketAddress(port)) {
         @Override
         public void onOpen(WebSocket session, ClientHandshake clientHandshake) {
-            Log.d(TAG, "onOpen: -------------mWebSocketServer---------------" + session.getRemoteSocketAddress().getAddress());
+            try {
+                try {
+                    Log.d(TAG, "onOpen: -------------mWebSocketServer---------------" + session.getRemoteSocketAddress().getAddress());
 
-            String de     = clientHandshake.getFieldValue("device");
-            String userId = clientHandshake.getFieldValue("userId");
 
-            int      device   = Integer.parseInt(de);
-            UserBean userBean = MemCons.userBeans.get(userId);
-            if (userBean == null) {
-                userBean = new UserBean(userId, avatar);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                String descriptor = clientHandshake.getResourceDescriptor();
+                Log.d(TAG, "onOpen: " + descriptor);
+
+
+                if (!TextUtils.isEmpty(descriptor)){
+                    if (descriptor.contains("room")){
+                        return;
+                    }
+                }
+                String[] goodList = descriptor.split("\\/");
+
+                String userId = goodList[1];
+                String de     = goodList[2];
+
+                if (TextUtils.isEmpty(de)) {
+                    Log.d(TAG, "onOpen: -----1");
+                    return;
+                }
+
+                if (TextUtils.isEmpty(userId)) {
+                    Log.d(TAG, "onOpen: -----2");
+                    return;
+                }
+
+                // /roomList
+                // /userList
+
+                int      device   = Integer.parseInt(de);
+                UserBean userBean = MemCons.userBeans.get(userId);
+                if (userBean == null) {
+                    userBean = new UserBean(userId, avatar);
+                }
+                if (device == 0) {
+                    userBean.setPhoneSession(session, device);
+                    userBean.setPhone(true);
+                    Log.e(TAG, "Phone用户登陆:" + userBean.getUserId() + ",session:" + session.getRemoteSocketAddress().getAddress());
+                } else {
+                    userBean.setPcSession(session, device);
+                    userBean.setPhone(false);
+                    Log.e(TAG, "PC用户登陆:" + userBean.getUserId() + ",session:" + session.getRemoteSocketAddress().getAddress());
+                }
+                SocketLiveServer.this.userId = userId;
+
+                //加入列表
+                MemCons.userBeans.put(userId, userBean);
+
+                // 登陆成功，返回个人信息
+                EventData send = new EventData();
+                send.setEventName("__login_success");
+                Map<String, Object> map = new HashMap<>();
+                map.put("userID", userId);
+                map.put("avatar", avatar);
+                send.setData(map);
+                session.send(gson.toJson(send));
+            } catch (Exception e) {
+                e.printStackTrace();
+                Log.e(TAG, "onOpen: ", e);
             }
-            if (device == 0) {
-                userBean.setPhoneSession(session, device);
-                userBean.setPhone(true);
-                Log.e(TAG, "Phone用户登陆:" + userBean.getUserId() + ",session:" + session.getRemoteSocketAddress().getAddress());
-            } else {
-                userBean.setPcSession(session, device);
-                userBean.setPhone(false);
-                Log.e(TAG, "PC用户登陆:" + userBean.getUserId() + ",session:" + session.getRemoteSocketAddress().getAddress());
-            }
-            SocketLiveServer.this.userId = userId;
-
-            //加入列表
-            MemCons.userBeans.put(userId, userBean);
-
-            // 登陆成功，返回个人信息
-            EventData send = new EventData();
-            send.setEventName("__login_success");
-            Map<String, Object> map = new HashMap<>();
-            map.put("userID", userId);
-            map.put("avatar", avatar);
-            send.setData(map);
-            //session.getAsyncRemote().sendText(gson.toJson(send));
 
 
         }
@@ -188,13 +228,17 @@ public class SocketLiveServer {
 
         @Override
         public void onMessage(WebSocket webSocket, String message) {
-
+            Log.d(TAG, "onMessage: "+message);
             handleMessage(message);
         }
 
         @Override
         public void onError(WebSocket webSocket, Exception e) {
-            Log.i(TAG, "onError:  " + e.toString());
+            try {
+                Log.i(TAG, "onError:  " + e.toString());
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }
         }
 
         @Override
