@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel;
 
 import com.alibaba.fastjson.JSON;
 import com.dds.core.consts.Urls;
+import com.dds.core.socket.RoomChangleListener;
 import com.dds.core.socket.SocketManager;
 import com.dds.net.HttpRequestPresenter;
 import com.dds.net.ICallback;
@@ -14,6 +15,15 @@ import com.dds.net.ICallback;
 import java.util.List;
 
 public class RoomViewModel extends ViewModel {
+
+    RoomChangleListener listener = new RoomChangleListener() {
+
+        @Override
+        public void onRoomsChange(String result) {
+            List<RoomInfo> roomInfos = JSON.parseArray(result, RoomInfo.class);
+            mList.postValue(roomInfos);
+        }
+    };
 
     private MutableLiveData<List<RoomInfo>> mList;
     private Thread thread;
@@ -30,6 +40,9 @@ public class RoomViewModel extends ViewModel {
     }
 
     public void loadRooms() {
+
+        SocketManager.getInstance().addRoomChangeCallback(listener);
+
         thread = new Thread(() -> {
             String url = Urls.getRoomList();
 

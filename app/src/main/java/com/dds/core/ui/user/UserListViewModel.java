@@ -8,13 +8,24 @@ import androidx.lifecycle.ViewModel;
 
 import com.alibaba.fastjson.JSON;
 import com.dds.core.consts.Urls;
+import com.dds.core.socket.RoomChangleListener;
 import com.dds.core.socket.SocketManager;
+import com.dds.core.socket.UserChangeListener;
 import com.dds.net.HttpRequestPresenter;
 import com.dds.net.ICallback;
 
 import java.util.List;
 
 public class UserListViewModel extends ViewModel {
+
+    UserChangeListener listener = new UserChangeListener() {
+
+        @Override
+        public void onUsersChange(String result) {
+            List<UserBean> userBeans = JSON.parseArray(result, UserBean.class);
+            mList.postValue(userBeans);
+        }
+    };
 
     private MutableLiveData<List<UserBean>> mList;
 
@@ -29,6 +40,8 @@ public class UserListViewModel extends ViewModel {
 
     // 获取远程用户列表
     public void loadUsers() {
+
+        SocketManager.getInstance().addUserChangeCallback(listener);
         Thread thread = new Thread(() -> {
             String url = Urls.getUserList();
             //  请求房间列表

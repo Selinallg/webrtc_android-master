@@ -6,9 +6,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
-import com.alibaba.fastjson.JSON;
 import com.dds.App;
-import com.dds.core.ui.user.UserBean;
 import com.dds.core.voip.Utils;
 import com.dds.core.voip.VoipReceiver;
 import com.dds.skywebrtc.CallSession;
@@ -20,7 +18,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.SecureRandom;
 import java.util.List;
-import java.util.Map;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
@@ -364,6 +361,9 @@ public class SocketManager implements IEvent {
     @Override
     public void onQueryUsers(String data) {
         Log.d(TAG, "onQueryUsers: ----------->"+data);
+        if (uListener!=null){
+            uListener.get().onUsersChange(data);
+        }
 
         // TODO: 2021/9/10 数据回调到  
 
@@ -374,6 +374,9 @@ public class SocketManager implements IEvent {
     @Override
     public void onQueryRooms(String data) {
         Log.d(TAG, "onQueryRooms: ---------------"+data);
+        if (pListener!=null){
+            pListener.get().onRoomsChange(data);
+        }
     }
     //===========================================================================================
 
@@ -386,6 +389,19 @@ public class SocketManager implements IEvent {
 
     public void addUserStateCallback(IUserState userState) {
         iUserState = new WeakReference<>(userState);
+    }
+
+    private WeakReference<RoomChangleListener> pListener;
+
+    public void addRoomChangeCallback(RoomChangleListener listener) {
+        pListener = new WeakReference<>(listener);
+    }
+
+
+    private WeakReference<UserChangeListener> uListener;
+
+    public void addUserChangeCallback(UserChangeListener listener) {
+        uListener = new WeakReference<>(listener);
     }
 
 }
