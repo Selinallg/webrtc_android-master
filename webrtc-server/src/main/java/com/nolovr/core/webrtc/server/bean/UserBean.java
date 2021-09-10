@@ -2,8 +2,7 @@ package com.nolovr.core.webrtc.server.bean;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import javax.websocket.Session;
+import org.java_websocket.WebSocket;
 
 public class UserBean {
 
@@ -24,7 +23,7 @@ public class UserBean {
     }
 
     @JsonIgnore
-    public void setPhoneSession(Session session, int device) {
+    public void setPhoneSession(WebSocket session, int device) {
         if (session == null) {
             this.phoneSession = null;
             return;
@@ -33,7 +32,7 @@ public class UserBean {
     }
 
     @JsonIgnore
-    public void setPcSession(Session session, int device) {
+    public void setPcSession(WebSocket session, int device) {
         if (session == null) {
             this.pcSession = null;
             return;
@@ -42,12 +41,12 @@ public class UserBean {
     }
 
     @JsonIgnore
-    public Session getPhoneSession() {
+    public WebSocket getPhoneSession() {
         return phoneSession == null ? null : phoneSession.getSession();
     }
 
     @JsonIgnore
-    public Session getPcSession() {
+    public WebSocket getPcSession() {
         return pcSession == null ? null : pcSession.getSession();
     }
 

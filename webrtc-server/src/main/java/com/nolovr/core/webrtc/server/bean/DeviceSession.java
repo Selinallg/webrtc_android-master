@@ -1,23 +1,24 @@
 package com.nolovr.core.webrtc.server.bean;
 
-import javax.websocket.Session;
+
+import org.java_websocket.WebSocket;
 
 public class DeviceSession {
-    private Session session;
-    private int device; // 0 phone 1 pc
-    private int statue; // 0 idle  1 inCall
+    private WebSocket session;
+    private int       device; // 0 phone 1 pc
+    private int       statue; // 0 idle  1 inCall
 
 
-    public DeviceSession(Session session, int device) {
+    public DeviceSession(WebSocket session, int device) {
         this.session = session;
         this.device = device;
     }
 
-    public Session getSession() {
+    public WebSocket getSession() {
         return session;
     }
 
-    public void setSession(Session session) {
+    public void setSession(WebSocket session) {
         this.session = session;
     }
 
