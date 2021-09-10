@@ -2,23 +2,32 @@ package com.nolovr.core.webrtc.server;
 
 import static com.nolovr.core.webrtc.server.MemCons.rooms;
 
+import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
+
+import androidx.annotation.RequiresApi;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.nolovr.core.webrtc.server.bean.EventData;
 import com.nolovr.core.webrtc.server.bean.RoomInfo;
 import com.nolovr.core.webrtc.server.bean.UserBean;
+import com.nolovr.core.webrtc.server.bean.UserInfo;
 
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
@@ -131,8 +140,8 @@ public class SocketLiveServer {
                 Log.d(TAG, "onOpen: " + descriptor);
 
 
-                if (!TextUtils.isEmpty(descriptor)){
-                    if (descriptor.contains("room")){
+                if (!TextUtils.isEmpty(descriptor)) {
+                    if (descriptor.contains("room")) {
                         return;
                     }
                 }
@@ -226,9 +235,10 @@ public class SocketLiveServer {
 
         }
 
+        @RequiresApi(api = Build.VERSION_CODES.N)
         @Override
         public void onMessage(WebSocket webSocket, String message) {
-            Log.d(TAG, "onMessage: "+message);
+            Log.d(TAG, "onMessage: " + message);
             handleMessage(message);
         }
 
@@ -249,6 +259,7 @@ public class SocketLiveServer {
 
 
     // 发送各种消息
+    @RequiresApi(api = Build.VERSION_CODES.N)
     private void handleMessage(String message) {
         EventData data;
         try {
@@ -293,6 +304,12 @@ public class SocketLiveServer {
                 break;
             case "__disconnect":
                 disconnet(message, data.getData());
+                break;
+            case "__queryRooms":
+                responseRooms(message, data.getData());
+                break;
+            case "__queryUsers":
+                responseUsers(message, data.getData());
                 break;
             default:
                 break;
@@ -553,7 +570,76 @@ public class SocketLiveServer {
                 rooms.remove(room);
             }
         }
+    }
 
+    // 发送查询 User
+    private void responseUsers(String message, Map<String, Object> data) {
+        String   userId   = (String) data.get("fromID");
+        UserBean userBean = MemCons.userBeans.get(userId);
+        if (userBean == null) {
+            System.out.println("用户 " + userId + " 不存在");
+            return;
+        }
+
+
+        try {
+            List<UserBean> userBeans = UserControl.userList();
+            JSONObject     root      = new JSONObject();
+
+            List<UserInfo> persons = new ArrayList<UserInfo>();
+
+            // String str = gson.toJson(userBeans);
+            // Log.d(TAG, "responseUsers: str="+str);
+
+            for (UserBean userBean1 : userBeans) {
+                UserInfo userInfo = new UserInfo();
+                userInfo.setUserId(userBean1.getUserId());
+                userInfo.setAvatar(userBean1.getAvatar());
+                userInfo.setNickName(userBean1.getUserId());
+                persons.add(userInfo);
+            }
+            String str = gson.toJson(persons);
+            root.put("data", str);
+            root.put("eventName", "__queryUsers");
+            sendMsg(userBean, -1, root.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.e(TAG, "responseUsers: ", e);
+        }
+
+    }
+
+    // 发送查询 房间信息
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    private void responseRooms(String message, Map<String, Object> data) {
+        String   userId   = (String) data.get("fromID");
+        UserBean userBean = MemCons.userBeans.get(userId);
+        if (userBean == null) {
+            System.out.println("用户 " + userId + " 不存在");
+            return;
+        }
+
+        try {
+            List<RoomInfo> roomInfos = UserControl.roomList();
+            JSONObject     root      = new JSONObject();
+
+
+            List<RoomBean> persons = new ArrayList<RoomBean>();
+            for (RoomInfo roomInfo1 : roomInfos) {
+                RoomBean roomBean = new RoomBean();
+                roomBean.setUserId(roomInfo1.getUserId());
+                roomBean.setRoomId(roomInfo1.getRoomId());
+                roomBean.setCurrentSize(roomInfo1.getCurrentSize());
+                roomBean.setMaxSize(roomInfo1.getMaxSize());
+                persons.add(roomBean);
+            }
+            String str = gson.toJson(persons);
+            root.put("data", str);
+            root.put("eventName", "__queryRooms");
+            sendMsg(userBean, -1, root.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
     }
 
@@ -562,6 +648,7 @@ public class SocketLiveServer {
 
     // 给不同设备发送消息
     private void sendMsg(UserBean userBean, int device, String str) {
+        Log.d(TAG, "sendMsg: " + str);
         if (device == 0) {
             WebSocket phoneSession = userBean.getPhoneSession();
             if (phoneSession != null) {

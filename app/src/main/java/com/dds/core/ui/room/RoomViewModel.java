@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel;
 
 import com.alibaba.fastjson.JSON;
 import com.dds.core.consts.Urls;
+import com.dds.core.socket.SocketManager;
 import com.dds.net.HttpRequestPresenter;
 import com.dds.net.ICallback;
 
@@ -31,6 +32,11 @@ public class RoomViewModel extends ViewModel {
     public void loadRooms() {
         thread = new Thread(() -> {
             String url = Urls.getRoomList();
+
+            // 请求房间信息
+            SocketManager.getInstance().loadRooms();
+
+
             HttpRequestPresenter.getInstance().get(url, null, new ICallback() {
                 @Override
                 public void onSuccess(String result) {

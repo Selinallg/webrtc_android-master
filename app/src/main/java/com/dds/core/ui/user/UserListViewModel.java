@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel;
 
 import com.alibaba.fastjson.JSON;
 import com.dds.core.consts.Urls;
+import com.dds.core.socket.SocketManager;
 import com.dds.net.HttpRequestPresenter;
 import com.dds.net.ICallback;
 
@@ -30,6 +31,9 @@ public class UserListViewModel extends ViewModel {
     public void loadUsers() {
         Thread thread = new Thread(() -> {
             String url = Urls.getUserList();
+            //  请求房间列表
+            SocketManager.getInstance().loadUsers();
+
             HttpRequestPresenter.getInstance()
                     .get(url, null, new ICallback() {
                         @Override

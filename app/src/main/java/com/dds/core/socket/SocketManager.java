@@ -6,7 +6,9 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
+import com.alibaba.fastjson.JSON;
 import com.dds.App;
+import com.dds.core.ui.user.UserBean;
 import com.dds.core.voip.Utils;
 import com.dds.core.voip.VoipReceiver;
 import com.dds.skywebrtc.CallSession;
@@ -18,6 +20,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.SecureRandom;
 import java.util.List;
+import java.util.Map;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
@@ -109,6 +112,22 @@ public class SocketManager implements IEvent {
             iUserState.get().userLogin();
         }
     }
+
+    // =======================================add by llg ============================================
+    public void loadUsers() {
+        if (webSocket != null) {
+            webSocket.loadUsers(myId);
+        }
+
+    }
+
+    public void loadRooms() {
+        if (webSocket != null) {
+            webSocket.loadRooms(myId);
+        }
+    }
+
+    // =======================================add by llg ============================================
 
 
     // ======================================================================================
@@ -340,6 +359,21 @@ public class SocketManager implements IEvent {
         handler.post(() -> {
             webSocket.reconnect();
         });
+    }
+
+    @Override
+    public void onQueryUsers(String data) {
+        Log.d(TAG, "onQueryUsers: ----------->"+data);
+
+        // TODO: 2021/9/10 数据回调到  
+
+//        List<UserBean> userBeans = JSON.parseArray(data, UserBean.class);
+//        mList.postValue(userBeans);
+    }
+
+    @Override
+    public void onQueryRooms(String data) {
+        Log.d(TAG, "onQueryRooms: ---------------"+data);
     }
     //===========================================================================================
 

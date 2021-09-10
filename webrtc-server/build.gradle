@@ -36,6 +36,10 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.2'
 //    implementation files('libs\\javax.websocket-api-1.1.jar')
 
+    // https://mvnrepository.com/artifact/com.alibaba/fastjson
+//    implementation group: 'com.alibaba', name: 'fastjson', version: '1.2.59'
+
+
     // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-annotations
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.12.3'
     implementation files('libs\\spring-aop-5.0.2.RELEASE.jar')

@@ -1,5 +1,7 @@
 package com.dds.core.socket;
 
+import java.util.Map;
+
 /**
  * Created by dds on 2019/7/26.
  * ddssingsong@163.com
@@ -44,5 +46,9 @@ public interface IEvent {
     void onDisConnect(String userId);
 
     void reConnect();
+
+    void onQueryUsers(String map);
+
+    void onQueryRooms(String data);
 
 }

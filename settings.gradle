@@ -1,2 +1,3 @@
 include ':app', ':rtc-chat'
 include ':libwebrtc'
+include ':webrtc-server'

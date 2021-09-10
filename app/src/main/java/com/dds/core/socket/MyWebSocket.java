@@ -24,9 +24,9 @@ import javax.net.ssl.X509TrustManager;
  * android_shuai@163.com
  */
 public class MyWebSocket extends WebSocketClient {
-    private final static String TAG = "dds_WebSocket";
-    private final IEvent iEvent;
-    private boolean connectFlag = false;
+    private final static String  TAG         = "dds_WebSocket";
+    private final        IEvent  iEvent;
+    private              boolean connectFlag = false;
 
 
     public MyWebSocket(URI serverUri, IEvent event) {
@@ -78,7 +78,7 @@ public class MyWebSocket extends WebSocketClient {
     // ---------------------------------------处理接收消息-------------------------------------
 
     private void handleMessage(String message) {
-        Map map = JSON.parseObject(message, Map.class);
+        Map    map       = JSON.parseObject(message, Map.class);
         String eventName = (String) map.get("eventName");
         if (eventName == null) return;
         // 登录成功
@@ -143,7 +143,35 @@ public class MyWebSocket extends WebSocketClient {
             handleDisConnect(map);
         }
 
+        // 请求房间信息
+        if (eventName.equals("__queryRooms")) {
+            handleQueryRooms(map);
+        }
 
+        // 请求用户信息
+        if (eventName.equals("__queryUsers")) {
+            handleQueryUsers(map);
+        }
+
+
+    }
+
+    private void handleQueryUsers(Map map) {
+        String data = (String) map.get("data");
+        if (data != null) {
+//            String sdp    = (String) data.get("sdp");
+//            String userID = (String) data.get("fromID");
+            this.iEvent.onQueryUsers(data);
+        }
+    }
+
+    private void handleQueryRooms(Map map) {
+        String data = (String) map.get("data");
+        if (data != null) {
+//            String sdp    = (String) data.get("sdp");
+//            String userID = (String) data.get("fromID");
+            this.iEvent.onQueryRooms(data);
+        }
     }
 
     private void handleDisConnect(Map map) {
@@ -176,9 +204,9 @@ public class MyWebSocket extends WebSocketClient {
     private void handleIceCandidate(Map map) {
         Map data = (Map) map.get("data");
         if (data != null) {
-            String userID = (String) data.get("fromID");
-            String id = (String) data.get("id");
-            int label = (int) data.get("label");
+            String userID    = (String) data.get("fromID");
+            String id        = (String) data.get("id");
+            int    label     = (int) data.get("label");
             String candidate = (String) data.get("candidate");
             this.iEvent.onIceCandidate(userID, id, label, candidate);
         }
@@ -187,7 +215,7 @@ public class MyWebSocket extends WebSocketClient {
     private void handleAnswer(Map map) {
         Map data = (Map) map.get("data");
         if (data != null) {
-            String sdp = (String) data.get("sdp");
+            String sdp    = (String) data.get("sdp");
             String userID = (String) data.get("fromID");
             this.iEvent.onAnswer(userID, sdp);
         }
@@ -196,7 +224,7 @@ public class MyWebSocket extends WebSocketClient {
     private void handleOffer(Map map) {
         Map data = (Map) map.get("data");
         if (data != null) {
-            String sdp = (String) data.get("sdp");
+            String sdp    = (String) data.get("sdp");
             String userID = (String) data.get("fromID");
             this.iEvent.onOffer(userID, sdp);
         }
@@ -205,8 +233,8 @@ public class MyWebSocket extends WebSocketClient {
     private void handleReject(Map map) {
         Map data = (Map) map.get("data");
         if (data != null) {
-            String fromID = (String) data.get("fromID");
-            int rejectType = Integer.parseInt(String.valueOf(data.get("refuseType")));
+            String fromID     = (String) data.get("fromID");
+            int    rejectType = Integer.parseInt(String.valueOf(data.get("refuseType")));
             this.iEvent.onReject(fromID, rejectType);
         }
     }
@@ -214,9 +242,9 @@ public class MyWebSocket extends WebSocketClient {
     private void handlePeers(Map map) {
         Map data = (Map) map.get("data");
         if (data != null) {
-            String you = (String) data.get("you");
+            String you         = (String) data.get("you");
             String connections = (String) data.get("connections");
-            int roomSize = (int) data.get("roomSize");
+            int    roomSize    = (int) data.get("roomSize");
             this.iEvent.onPeers(you, connections, roomSize);
         }
     }
@@ -249,10 +277,10 @@ public class MyWebSocket extends WebSocketClient {
     private void handleInvite(Map map) {
         Map data = (Map) map.get("data");
         if (data != null) {
-            String room = (String) data.get("room");
+            String  room      = (String) data.get("room");
             boolean audioOnly = (boolean) data.get("audioOnly");
-            String inviteID = (String) data.get("inviteID");
-            String userList = (String) data.get("userList");
+            String  inviteID  = (String) data.get("inviteID");
+            String  userList  = (String) data.get("userList");
             this.iEvent.onInvite(room, audioOnly, inviteID, userList);
         }
     }
@@ -278,7 +306,7 @@ public class MyWebSocket extends WebSocketClient {
         childMap.put("userID", myId);
 
         map.put("data", childMap);
-        JSONObject object = new JSONObject(map);
+        JSONObject   object     = new JSONObject(map);
         final String jsonString = object.toString();
         Log.d(TAG, "send-->" + jsonString);
         send(jsonString);
@@ -298,7 +326,7 @@ public class MyWebSocket extends WebSocketClient {
         childMap.put("userList", join);
 
         map.put("data", childMap);
-        JSONObject object = new JSONObject(map);
+        JSONObject   object     = new JSONObject(map);
         final String jsonString = object.toString();
         Log.d(TAG, "send-->" + jsonString);
         send(jsonString);
@@ -318,7 +346,7 @@ public class MyWebSocket extends WebSocketClient {
 
 
         map.put("data", childMap);
-        JSONObject object = new JSONObject(map);
+        JSONObject   object     = new JSONObject(map);
         final String jsonString = object.toString();
         Log.d(TAG, "send-->" + jsonString);
         send(jsonString);
@@ -336,7 +364,7 @@ public class MyWebSocket extends WebSocketClient {
 
 
         map.put("data", childMap);
-        JSONObject object = new JSONObject(map);
+        JSONObject   object     = new JSONObject(map);
         final String jsonString = object.toString();
         Log.d(TAG, "send-->" + jsonString);
         send(jsonString);
@@ -353,7 +381,7 @@ public class MyWebSocket extends WebSocketClient {
 
 
         map.put("data", childMap);
-        JSONObject object = new JSONObject(map);
+        JSONObject   object     = new JSONObject(map);
         final String jsonString = object.toString();
         Log.d(TAG, "send-->" + jsonString);
         send(jsonString);
@@ -371,7 +399,7 @@ public class MyWebSocket extends WebSocketClient {
         childMap.put("refuseType", String.valueOf(refuseType));
 
         map.put("data", childMap);
-        JSONObject object = new JSONObject(map);
+        JSONObject   object     = new JSONObject(map);
         final String jsonString = object.toString();
         Log.d(TAG, "send-->" + jsonString);
         send(jsonString);
@@ -388,7 +416,7 @@ public class MyWebSocket extends WebSocketClient {
         childMap.put("userID", userId);
 
         map.put("data", childMap);
-        JSONObject object = new JSONObject(map);
+        JSONObject   object     = new JSONObject(map);
         final String jsonString = object.toString();
         Log.d(TAG, "send-->" + jsonString);
         if (isOpen()) {
@@ -398,14 +426,14 @@ public class MyWebSocket extends WebSocketClient {
 
     // send offer
     public void sendOffer(String myId, String userId, String sdp) {
-        Map<String, Object> map = new HashMap<>();
+        Map<String, Object> map      = new HashMap<>();
         Map<String, Object> childMap = new HashMap<>();
         childMap.put("sdp", sdp);
         childMap.put("userID", userId);
         childMap.put("fromID", myId);
         map.put("data", childMap);
         map.put("eventName", "__offer");
-        JSONObject object = new JSONObject(map);
+        JSONObject   object     = new JSONObject(map);
         final String jsonString = object.toString();
         Log.d(TAG, "send-->" + jsonString);
         send(jsonString);
@@ -413,14 +441,14 @@ public class MyWebSocket extends WebSocketClient {
 
     // send answer
     public void sendAnswer(String myId, String userId, String sdp) {
-        Map<String, Object> map = new HashMap<>();
+        Map<String, Object> map      = new HashMap<>();
         Map<String, Object> childMap = new HashMap<>();
         childMap.put("sdp", sdp);
         childMap.put("fromID", myId);
         childMap.put("userID", userId);
         map.put("data", childMap);
         map.put("eventName", "__answer");
-        JSONObject object = new JSONObject(map);
+        JSONObject   object     = new JSONObject(map);
         final String jsonString = object.toString();
         Log.d(TAG, "send-->" + jsonString);
         send(jsonString);
@@ -439,7 +467,7 @@ public class MyWebSocket extends WebSocketClient {
         childMap.put("candidate", candidate);
 
         map.put("data", childMap);
-        JSONObject object = new JSONObject(map);
+        JSONObject   object     = new JSONObject(map);
         final String jsonString = object.toString();
         Log.d(TAG, "send-->" + jsonString);
         if (isOpen()) {
@@ -449,13 +477,13 @@ public class MyWebSocket extends WebSocketClient {
 
     // 切换到语音
     public void sendTransAudio(String myId, String userId) {
-        Map<String, Object> map = new HashMap<>();
+        Map<String, Object> map      = new HashMap<>();
         Map<String, Object> childMap = new HashMap<>();
         childMap.put("fromID", myId);
         childMap.put("userID", userId);
         map.put("data", childMap);
         map.put("eventName", "__audio");
-        JSONObject object = new JSONObject(map);
+        JSONObject   object     = new JSONObject(map);
         final String jsonString = object.toString();
         Log.d(TAG, "send-->" + jsonString);
         send(jsonString);
@@ -463,14 +491,40 @@ public class MyWebSocket extends WebSocketClient {
 
     // 断开重连
     public void sendDisconnect(String room, String myId, String userId) {
-        Map<String, Object> map = new HashMap<>();
+        Map<String, Object> map      = new HashMap<>();
         Map<String, Object> childMap = new HashMap<>();
         childMap.put("fromID", myId);
         childMap.put("userID", userId);
         childMap.put("room", room);
         map.put("data", childMap);
         map.put("eventName", "__disconnect");
-        JSONObject object = new JSONObject(map);
+        JSONObject   object     = new JSONObject(map);
+        final String jsonString = object.toString();
+        Log.d(TAG, "send-->" + jsonString);
+        send(jsonString);
+    }
+
+    public void loadUsers(String myId) {
+
+        Map<String, Object> map      = new HashMap<>();
+        Map<String, Object> childMap = new HashMap<>();
+        childMap.put("fromID", myId);
+        map.put("data", childMap);
+        map.put("eventName", "__queryUsers");
+        JSONObject   object     = new JSONObject(map);
+        final String jsonString = object.toString();
+        Log.d(TAG, "send-->" + jsonString);
+        send(jsonString);
+
+    }
+
+    public void loadRooms(String myId) {
+        Map<String, Object> map      = new HashMap<>();
+        Map<String, Object> childMap = new HashMap<>();
+        childMap.put("fromID", myId);
+        map.put("data", childMap);
+        map.put("eventName", "__queryRooms");
+        JSONObject   object     = new JSONObject(map);
         final String jsonString = object.toString();
         Log.d(TAG, "send-->" + jsonString);
         send(jsonString);

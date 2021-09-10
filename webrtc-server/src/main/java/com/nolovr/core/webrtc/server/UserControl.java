@@ -28,10 +28,10 @@ public class UserControl {
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @RequestMapping("/roomList")
-    public List<RoomInfo> roomList() {
-        ConcurrentHashMap<String, RoomInfo> rooms = MemCons.rooms;
-        Collection<RoomInfo> values = rooms.values();
-        ArrayList<RoomInfo> objects = new ArrayList<>();
+    public static List<RoomInfo> roomList() {
+        ConcurrentHashMap<String, RoomInfo> rooms   = MemCons.rooms;
+        Collection<RoomInfo>                values  = rooms.values();
+        ArrayList<RoomInfo>                 objects = new ArrayList<>();
         values.forEach(roomInfo -> {
             if (roomInfo.getMaxSize() > 2) {
                 objects.add(roomInfo);
@@ -41,9 +41,9 @@ public class UserControl {
     }
 
     @RequestMapping("/userList")
-    public List<UserBean> userList() {
+    public static List<UserBean> userList() {
         ConcurrentHashMap<String, UserBean> userBeans = MemCons.userBeans;
-        Collection<UserBean> values = userBeans.values();
+        Collection<UserBean>                values    = userBeans.values();
         return new ArrayList<>(values);
     }
 
